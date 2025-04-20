@@ -9,8 +9,10 @@ services:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.static-web.rule=Host(${WEB_HOST})"
+      - "traefik.http.routers.static-web.rule=Host(`${WEB_HOST}`)"
       - "traefik.http.routers.static-web.entrypoints=websecure"
+      - "traefik.http.services.static-web.loadbalancer.server.port=80"
+      - "traefik.http.routers.static-web.tls=true"
       - "traefik.http.routers.static-web.tls.certresolver=letsencrypt"
     networks:
       - shared-network
