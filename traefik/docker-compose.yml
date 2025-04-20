@@ -1,0 +1,36 @@
+services:
+  traefik:
+    image: traefik:v3.1
+    container_name: traefik
+    environment:
+      - CF_API_EMAIL=${CF_API_EMAIL}
+      - CF_DNS_API_TOKEN=${CF_DNS_API_TOKEN}
+      - TRAEFIK_DASHBOARD=${TRAEFIK_DASHBOARD}
+      - ADMIN_USER=${ADMIN_USER}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./config/traefik.yml:/traefik.yml:ro
+      - ./certs:/certs
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.rule=Host(${TRAEFIK_DASHBOARD})"
+      - "traefik.http.routers.traefik.service=api@internal"
+      - "traefik.http.routers.traefik.entrypoints=websecure"
+      - "traefik.http.routers.traefik.middlewares=auth"
+      - "traefik.http.middlewares.auth.basicauth.users=${ADMIN_USER}"
+      - "traefik.http.routers.traefik.tls=true"
+      - "traefik.http.routers.traefik.tls.certresolver=letsencrypt"
+    networks:
+      - shared-network
+    restart: unless-stopped
+
+networks:
+  shared-network:
+    external: true
+
+volumes:
+  certs:
