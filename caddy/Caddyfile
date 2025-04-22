@@ -1,0 +1,24 @@
+<url> {
+
+    #mail de dang ky cert
+    tls <email>
+
+    #handle specific route
+    handle /ws/* {
+        reverse_proxy localhost:8888
+    }
+
+    #handle http
+    handle {
+        reverse_proxy localhost:8000
+    }
+
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        X-Content-Type-Options "nosniff"
+        #chặn nhúng frame
+        X-Frame-Options "DENY"
+        #đang bypass inline js, chặn inline css. Sửa lại nếu không dùng inline js
+        Content-Security-Policy "default-src 'self'; style-src 'self'; img-src 'self' data: blob:; script-src 'self' 'unsafe-inline'; connect-src 'self' wss://<url>;"
+    }
+}
